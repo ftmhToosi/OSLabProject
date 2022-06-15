@@ -1,0 +1,167 @@
+#!/bin/bash
+
+Menu(){
+
+	dialog	--backtitle "Student Registration " --title "Main\
+	Menu" 	--menu "Move using [UP],[DOWN],[Enter] to\
+	Select" 10 80 4 \
+	1    "Register The Student" \
+	2    "Enter The grades" \
+	3    "Report" \
+	4    "Exit" 2>/tmp/menuitem.$$
+
+	menuitem=`cat /tmp/menuitem.$$`
+	opt=$?
+	case $menuitem in 
+	  1) Register;;
+	  2) Grade;;
+	  3) Report;;
+	  4) exit;;
+	esac
+}
+
+Register(){
+
+	dialog --title "Register Form" --backtitle "Student Registration" --inputbox "Enter The Student Number :" 8 50 2>/tmp/input.$$
+	sn=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	1) echo "cancel is press";;
+	esac
+	
+	dialog --title "Register Form" --backtitle "Student Registration" --inputbox "Enter The First Name :" 8 50 2>/tmp/input.$$
+	name=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	1) echo "cancel is press";;
+	esac
+
+	dialog --title "Register Form" --backtitle "Student Registration" --inputbox "Enter The Last Name :" 8 50 2>/tmp/input.$$
+	lname=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok";;
+	1) echo "cancel is press";;
+	esac
+
+	echo "$sn	$name	$lname" >> file1 ;
+
+	dialog --title "Register Form" --backtitle "Student Registration" --yesno "\nDo you want to Register another student ?" 8 60
+	sel=$?
+	case $sel in
+	0) Register ;;
+	1) Menu ;;
+	esac
+}
+
+Grade(){
+
+	dialog --title "Grade Form" --backtitle "Student Registration" --inputbox "Enter The Student Number :" 8 50 2>/tmp/input.$$
+	sn=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	1) echo "cancel is press";;
+	esac
+
+	dialog --title "Grade Form" --backtitle "Student Registration" --inputbox "Enter The Score Of Operating System Lesson :" 8 50 2>/tmp/input.$$
+	s1=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	1) echo "cancel is press";;
+	esac
+
+	dialog --title "Grade Form" --backtitle "Student Registration" --inputbox "Enter The Score Of Lab OS Lesson :" 8 50 2>/tmp/input.$$
+	s2=`cat /tmp/input.$$`
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	1) echo "cancel is press";;
+	esac
+
+	echo "$sn	$s1	$s2" >> file2 ;
+
+	dialog --title "Grade Form" --backtitle "Student Registration" --yesno "\nDo you want to add scores for another student ?" 8 60
+	sel=$?
+	case $sel in
+	0) Grade ;;
+	1) Menu ;;
+	esac
+}
+
+Report() {
+
+ 	dialog --backtitle "Student Registration " --title "Report form" --menu "Move using [UP],[DOWN],[Enter] to \
+	Select " 10 80 3 \
+	1    "Report The Marks Of Operating Systemm Lesson" \
+	2    "Report The Marks Of Lab OS Lesson " \
+	3    "Report Of Student " 2>/tmp/menuitem.$$
+
+	menuitem=`cat /tmp/menuitem.$$`
+	case $menuitem in 
+	  1) Report_Of_OS;;
+	  2) Report_Of_Lab_OS;;
+	  3) Report_Of_Student;;
+	esac 
+
+	dialog --backtitle "Student Registration" --yesno "\nDo you want back to MainMenu ?" 8 50
+	sel=$?
+	case $sel in
+	0) Menu ;;
+	1) Report ;;
+	esac
+}
+
+
+Report_Of_OS(){
+
+	sort -u file1 > file3
+	sort -u file2 > file4
+	cut -c-13 file4 >f1
+	join file3 f1 > f2
+	
+	dialog --title "Report_Of_OS" --backtitle "Student Registration" --textbox f2 30 40
+	sel=$?
+	case $sel in
+	0) echo "ok" ;;
+	255) echo "Canceled by user by pressing [ESC] key";;
+	esac
+}
+
+Report_Of_Lab_OS(){
+
+	cut -c12-30 file3 > f3
+	cut -c15-17 file4 > f4
+	
+	paste -d ':' f3 f4 > f5
+	
+	dialog --title "Report_Of_Lab_OS" --backtitle "Student Registration" --textbox f5 30 40 
+	sel=$?
+	case $sel in
+	0) join file3 f1 ;;
+	255) echo "Canceled by user by pressing [ESC] key";;
+	esac
+}
+
+Report_Of_Student() {
+
+	dialog --backtitle "Student Registration" --inputbox "Enter The Student Number :" 8 50 2>/tmp/input.$$
+	sn=`cat /tmp/input.$$`
+	
+	join /tmp/input.$$ file3 > f6
+	join f6 file4 > f7
+	
+	dialog --title "Report_Of_Student" --backtitle "Student Registration" --textbox f7 00 00
+	sel=$?
+	case $sel in
+	0) "ok" ;;
+	255) echo "Canceled by user by pressing [ESC] key";;
+	esac
+	
+}
+
+# Call the main functon
+Menu
